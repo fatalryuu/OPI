@@ -27,7 +27,7 @@ public class Main {
         System.out.print("Enter the link to a file: ");
 
         do {
-            isInCorrect = false;
+            isInCorrect = true;
             path = scan.next(); //Line
             File file = new File(path);
 
