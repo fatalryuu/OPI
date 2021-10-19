@@ -1,0 +1,173 @@
+package com.company;
+
+import java.util.Scanner;
+import java.io.*;
+
+public class Main {
+
+    private static Scanner scan = new Scanner(System.in);
+    private static final int MIN_VALUE_FOR_SIZE = 1;
+    private static final int MAX_VALUE_FOR_SIZE = 9;
+
+    private static String getFileExtension(File file) {
+        String fileName = file.getName();
+
+        if (fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0)
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+        else
+            return "";
+    }
+
+    public static void outputOfTaskInfo() {
+        System.out.println("Эта программа строит матрицу порядка n, записав ее числа от 1 до n^2 согласно схеме. ");
+        System.out.print("Введите ссылку на файл для считывания размера матрицы: ");
+    }
+
+    public static String inputPathToFile() {
+
+        boolean isIncorrect;
+        String path;
+
+        do {
+            isIncorrect = false;
+            path = scan.nextLine();
+            File file = new File(path);
+            if (!file.exists()) {
+                System.err.print("Файл не найден! Введите правильную ссылку: ");
+                isIncorrect = true;
+            } if (!isIncorrect && getFileExtension(file).equals("txt"))
+                isIncorrect = false;
+            else if (!isIncorrect) {
+                System.err.print("Ошибка! Попробуйте указать другую ссылку: ");
+                isIncorrect = true;
+            }
+        } while (isIncorrect);
+
+        return path;
+    }
+
+
+    public static int readSizeFromConsole() {
+
+        int size = 0;
+        boolean isInCorrect;
+        System.out.print("В файле введен некорректный размер матрицы!" + System.lineSeparator() + "Введите в консоль целое число от " + MIN_VALUE_FOR_SIZE + " до " + MAX_VALUE_FOR_SIZE + ": ");
+
+        do {
+            isInCorrect = false;
+            try {
+                size = Integer.parseInt(scan.nextLine());
+            }
+            catch (Exception e) {
+                isInCorrect = true;
+                System.err.print("Введите целое число: ");
+            }
+            if (!isInCorrect && (size < MIN_VALUE_FOR_SIZE || size > MAX_VALUE_FOR_SIZE)) {
+                System.err.println("Ошибка! Пожалуйста, введите число из указанного диапазона! ");
+                isInCorrect = true;
+            }
+        } while (isInCorrect);
+
+        return size;
+    }
+
+    public static int readSizeFromFile(final String path) {
+
+        int size = 0;
+        boolean isCorrect = true;
+        System.out.print("\nЧтение размеров матрицы... \n" + '\n');
+        try {
+            Scanner fileReader = new Scanner(new File(path));
+
+            try {
+                size = fileReader.nextInt();
+            } catch (Exception e) {
+                isCorrect = false;
+                System.err.print("В файле введен некорректный размер матрицы!");
+                System.out.println("Введите в консоль целое число от " + MIN_VALUE_FOR_SIZE + " до " + MAX_VALUE_FOR_SIZE + ": ");
+                size = readSizeFromConsole();
+            }
+            if (isCorrect && (size > MAX_VALUE_FOR_SIZE || size < MIN_VALUE_FOR_SIZE)) {
+                size = readSizeFromConsole();
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Неизвестная ошибка!");
+        }
+
+        return size;
+    }
+
+    public static int[][] creatingOfMatrix(final int size) {
+
+        int[][] matrix = new int[size][size];
+        return matrix;
+    }
+
+    public static void initializationOfMatrix(final int size, int[][] matrix) {
+
+        int k = 1;
+
+        for (int i = 0; i < size; i++) {
+            if (i % 2 == 0) {
+                for (int j = 0; j < size; j++) {
+                    matrix[i][j] = k;
+                    k++;
+                }
+            }
+            else {
+                for (int j = size - 1; j > -1; j--) {
+                    matrix[i][j] = k;
+                    k++;
+                }
+
+            }
+        }
+    }
+
+    public static void outputToConsole(final int size, final int[][] matrix) {
+        System.out.println("Реультат: \n");
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.print(matrix[i][j] + " ");
+                System.out.print('\t');
+            }
+            System.out.print('\n');
+        }
+        System.out.print('\n');
+    }
+
+    public static void outputToFile(final int size, final int[][] matrix, final String path) {
+
+        try {
+            System.out.println("\nПроисходит запись матрицы в файл... \n");
+            FileWriter writer = new FileWriter(path);
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    writer.write(String.valueOf(matrix[i][j]));
+                    writer.write('\t');
+                }
+                writer.write('\n');
+            }
+            System.out.println("Данные успешно записаны в файл!\n");
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Ошибка! Отказано в доступе. Измените параметры файла!");
+        }
+    }
+
+    public static void main(String[] args) {
+        int[][] matrix;
+
+        outputOfTaskInfo();
+        String inputFile = inputPathToFile();
+        int size = readSizeFromFile(inputFile);
+        matrix = creatingOfMatrix(size);
+        initializationOfMatrix(size, matrix);
+        outputToConsole(size, matrix);
+        System.out.print("Введите ссылку на файл для записи получившейся матрицы: ");
+        String outputFile = inputPathToFile();
+        outputToFile(size, matrix, outputFile);
+        scan.close();
+    }
+}
